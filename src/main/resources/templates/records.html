@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registros | Actividad 4</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="header">
+        <div>
+          <p class="eyebrow">Actividad sumativa · Unidad 4</p>
+          <h1>Registros en Firestore</h1>
+          <p class="intro">
+            Importa, consulta y administra información de tu base de datos en la
+            nube.
+          </p>
+        </div>
+        <span
+          class="status"
+          th:classappend="${configured ? 'status-ok' : 'status-warning'}"
+          th:text="${configured ? 'Firestore conectado' : 'Firestore pendiente'}"
+          >Firestore pendiente</span
+        >
+      </header>
+      <div class="notice success" th:if="${success}" th:text="${success}"></div>
+      <div class="notice error" th:if="${error}" th:text="${error}"></div>
+      <div class="notice warning" th:if="${!configured}">
+        <strong>Configura Firebase para comenzar.</strong
+        ><span th:text="${configurationMessage}"></span>
+      </div>
+      <section class="toolbar">
+        <form class="search" method="get">
+          <label for="search">Buscar registro</label>
+          <div class="search-row">
+            <input
+              id="search"
+              name="search"
+              th:value="${search}"
+              placeholder="Texto en cualquier campo"
+            /><button class="button dark" type="submit">Consultar</button>
+          </div>
+        </form>
+        <form
+          class="upload"
+          method="post"
+          action="/upload"
+          enctype="multipart/form-data"
+        >
+          <label for="file">Carga masiva CSV</label>
+          <div class="search-row">
+            <input
+              id="file"
+              name="file"
+              type="file"
+              accept=".csv"
+              required
+            /><button class="button accent" type="submit">Importar CSV</button>
+          </div>
+        </form>
+      </section>
+      <section class="content-grid">
+        <div class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Colección registros</p>
+              <h2>Datos almacenados</h2>
+            </div>
+            <span class="count" th:text="${records.size()} + ' resultados'"
+              >0 resultados</span
+            >
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th th:each="column : ${columns}" th:text="${column}">
+                    Campo
+                  </th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="record : ${records}">
+                  <td class="id-cell" th:text="${record['id']}">id</td>
+                  <td
+                    th:each="column : ${columns}"
+                    th:text="${record.get(column)}"
+                  ></td>
+                  <td class="actions">
+                    <a class="button small" th:href="@{/(edit=${record['id']})}"
+                      >Editar</a
+                    >
+                    <form
+                      method="post"
+                      th:action="@{'/records/' + ${record['id']} + '/delete'}"
+                    >
+                      <button class="button small danger" type="submit">
+                        Eliminar
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                <tr th:if="${records.isEmpty()}">
+                  <td class="empty" th:colspan="${columns.size() + 2}">
+                    No hay registros para mostrar.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <aside class="panel form-panel">
+          <p class="eyebrow">Operación manual</p>
+          <h2
+            th:text="${editRecord != null ? 'Editar registro' : 'Nuevo registro'}"
+          >
+            Nuevo registro
+          </h2>
+          <p class="muted">
+            Los nombres de campo deben coincidir con los encabezados del CSV.
+          </p>
+          <form method="post" action="/records">
+            <input
+              type="hidden"
+              name="id"
+              th:value="${editRecord != null ? editRecord['id'] : ''}"
+            />
+            <div th:if="${editRecord == null}">
+              <label for="name">Nombre del campo</label
+              ><input
+                id="name"
+                name="nombre"
+                placeholder="Ej. nombre"
+                required
+              /><label for="value">Valor</label
+              ><input
+                id="value"
+                name="valor"
+                placeholder="Ej. Ana Perez"
+                required
+              />
+            </div>
+            <div th:if="${editRecord != null}">
+              <div th:each="field : ${editRecord}" th:if="${field.key != 'id'}">
+                <label th:for="${'edit-' + field.key}" th:text="${field.key}"
+                  >Campo</label
+                ><input
+                  th:id="${'edit-' + field.key}"
+                  th:name="${field.key}"
+                  th:value="${field.value}"
+                  required
+                />
+              </div>
+            </div>
+            <button
+              class="button accent full"
+              type="submit"
+              th:disabled="${!configured}"
+            >
+              Guardar registro
+            </button>
+          </form>
+        </aside>
+      </section>
+      <footer>Spring Boot · Java 17 · Firebase Admin SDK · Firestore</footer>
+    </main>
+  </body>
+</html>

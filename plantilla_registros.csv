@@ -1,0 +1,4 @@
+nombre_inmueble,tipo_inmueble,ciudad,direccion,precio,habitaciones,banos,area_m2,estado
+Apartamento Los Cedros,Apartamento,Bogota,Calle 123 # 45-67,285000000,3,2,82,Disponible
+Casa El Poblado,Casa,Medellin,Carrera 35 # 10-20,640000000,4,3,180,Disponible
+Oficina Centro,Oficina,Cali,Calle 12 # 5-30,195000000,2,1,55,Arrendada
